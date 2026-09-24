@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Build
+dist/
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeORM
+*.tsbuildinfo
+
+# Stockage local des fichiers (dev)
+storage/
+
+# Uploads temporaires
+tmp/

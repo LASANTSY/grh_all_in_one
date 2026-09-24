@@ -1,0 +1,71 @@
+cd D:\PROJETO\grh-emmn
+
+@"
+# ============================================================
+# GRH EMMN — Ignorance globale (backend + frontend)
+# ============================================================
+
+# --- Dependances ---
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# --- Build ---
+dist/
+build/
+coverage/
+*/dist/
+*/build/
+*/coverage/
+
+# --- Environment (JAMAIS de secrets dans Git) ---
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- TypeScript ---
+*.tsbuildinfo
+backend/*.tsbuildinfo
+frontend/*.tsbuildinfo
+
+# --- Stockage local des fichiers uploades ---
+backend/storage/
+storage/
+
+# --- Fichiers temporaires ---
+tmp/
+temp/
+*.tmp
+
+# --- IDE / Editeurs ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Coverage / Tests ---
+.nyc_output/
+junit.xml
+
+# --- Docker ---
+docker/volumes/
+"@ | Set-Content .gitignore -Encoding UTF8
+
+Write-Host ".gitignore cree"
+Get-Content .gitignore
