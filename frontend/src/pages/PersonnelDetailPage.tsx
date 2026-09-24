@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -14,8 +14,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { personnelDetailService } from '@/features/personnels/services/personnelDetailService';
+import { EnfantsTab } from '@/features/personnels/components/tabs/EnfantsTab';
+import { AffectationsTab } from '@/features/personnels/components/tabs/AffectationsTab';
+import { DecorationsTab } from '@/features/personnels/components/tabs/DecorationsTab';
+import { DocumentsTab } from '@/features/personnels/components/tabs/DocumentsTab';
+import { EtudesFormationsTab } from '@/features/personnels/components/tabs/EtudesFormationsTab';
+import { ConnaissancesTab } from '@/features/personnels/components/tabs/ConnaissancesTab';
+import { HistoriqueGradesTab } from '@/features/personnels/components/tabs/HistoriqueGradesTab';
+
 import { usePermissions } from '@/hooks/usePermissions';
 import { formatDate, formatInitiales } from '@/lib/formatters';
+
+function Field({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium">{value && value !== '' ? value : '-'}</p>
+    </div>
+  );
+}
 
 export function PersonnelDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -81,14 +98,17 @@ export function PersonnelDetailPage() {
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 grid-cols-2 gap-4 text-sm md:grid-cols-4">
-            <div><span className="text-muted-foreground">Grade</span><p className="font-medium">{p.grade.libelle}</p></div>
-            <div><span className="text-muted-foreground">Categorie</span><p className="font-medium">{p.grade.categorie}</p></div>
-            <div><span className="text-muted-foreground">Unite</span><p className="font-medium">{p.unite.nom}</p></div>
-            <div><span className="text-muted-foreground">Specialite</span><p className="font-medium">{p.specialite?.libelle ?? '-'}</p></div>
-            <div><span className="text-muted-foreground">Naissance</span><p className="font-medium">{formatDate(p.dateNaissance)}</p></div>
-            <div><span className="text-muted-foreground">Lieu de naissance</span><p className="font-medium">{p.lieuNaissance}</p></div>
-            <div><span className="text-muted-foreground">Fin de lien</span><p className="font-medium">{p.dateFinDeLien ? formatDate(p.dateFinDeLien) : '-'}</p></div>
-            <div><span className="text-muted-foreground">Statut</span><p><StatusBadge variant={p.actif ? 'success' : 'muted'}>{p.actif ? 'Actif' : 'Inactif'}</StatusBadge></p></div>
+            <Field label="Grade" value={p.grade.libelle} />
+            <Field label="Categorie" value={p.grade.categorie} />
+            <Field label="Unite" value={p.unite.nom} />
+            <Field label="Specialite" value={p.specialite?.libelle ?? null} />
+            <Field label="Naissance" value={formatDate(p.dateNaissance)} />
+            <Field label="Lieu de naissance" value={p.lieuNaissance} />
+            <Field label="Fin de lien" value={p.dateFinDeLien ? formatDate(p.dateFinDeLien) : null} />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Statut</p>
+              <p><StatusBadge variant={p.actif ? 'success' : 'muted'}>{p.actif ? 'Actif' : 'Inactif'}</StatusBadge></p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -98,6 +118,7 @@ export function PersonnelDetailPage() {
           <TabsTrigger value="general">Informations generales</TabsTrigger>
           <TabsTrigger value="enfants">Enfants</TabsTrigger>
           <TabsTrigger value="militaire">Renseignements militaires</TabsTrigger>
+          <TabsTrigger value="grades">Historique grades</TabsTrigger>
           <TabsTrigger value="etudes">Etudes et formations</TabsTrigger>
           <TabsTrigger value="connaissances">Connaissances</TabsTrigger>
           <TabsTrigger value="affectations">Affectations</TabsTrigger>
@@ -105,14 +126,59 @@ export function PersonnelDetailPage() {
           <TabsTrigger value="documents">Pieces jointes</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general"><GeneralTab p={p} /></TabsContent>
-        <TabsContent value="enfants"><PlaceholderTab label="Enfants" /></TabsContent>
-        <TabsContent value="militaire"><MilitaireTab p={p} /></TabsContent>
-        <TabsContent value="etudes"><PlaceholderTab label="Etudes et formations" /></TabsContent>
-        <TabsContent value="connaissances"><ConnaissancesTab p={p} /></TabsContent>
-        <TabsContent value="affectations"><PlaceholderTab label="Affectations" /></TabsContent>
-        <TabsContent value="decorations"><PlaceholderTab label="Decorations" /></TabsContent>
-        <TabsContent value="documents"><PlaceholderTab label="Pieces jointes" /></TabsContent>
+        <TabsContent value="general" className="mt-4">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Informations generales</CardTitle></CardHeader>
+            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Field label="Matricule de recrutement" value={p.matriculeRecrutement} />
+              <Field label="Matricule financier" value={p.matriculeFinancier} />
+              <Field label="Email" value={p.email} />
+              <Field label="Telephone" value={p.telephoneMobile} />
+              <Field label="Numero CIN" value={p.numeroCIN} />
+              <Field label="Date de naissance" value={formatDate(p.dateNaissance)} />
+              <Field label="Lieu de naissance" value={p.lieuNaissance} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="enfants" className="mt-4">
+          <EnfantsTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="militaire" className="mt-4">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Renseignements militaires</CardTitle></CardHeader>
+            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Field label="Grade" value={p.grade.libelle} />
+              <Field label="Unite" value={p.unite.nom} />
+              <Field label="Specialite" value={p.specialite?.libelle ?? null} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="grades" className="mt-4">
+          <HistoriqueGradesTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="etudes" className="mt-4">
+          <EtudesFormationsTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="connaissances" className="mt-4">
+          <ConnaissancesTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="affectations" className="mt-4">
+          <AffectationsTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="decorations" className="mt-4">
+          <DecorationsTab personnelId={p.id} />
+        </TabsContent>
+
+        <TabsContent value="documents" className="mt-4">
+          <DocumentsTab personnelId={p.id} />
+        </TabsContent>
       </Tabs>
 
       <ConfirmDialog
@@ -126,65 +192,5 @@ export function PersonnelDetailPage() {
         onConfirm={() => deleteMutation.mutate()}
       />
     </div>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="space-y-1">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium">{value && value !== '' ? value : '-'}</p>
-    </div>
-  );
-}
-
-function GeneralTab({ p }: { p: ReturnType<typeof personnelDetailService.get> extends Promise<infer T> ? T : never }) {
-  return (
-    <Card>
-      <CardHeader><CardTitle className="text-base">Informations generales</CardTitle></CardHeader>
-      <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Field label="Matricule de recrutement" value={p.matriculeRecrutement} />
-        <Field label="Matricule financier" value={p.matriculeFinancier} />
-        <Field label="Email" value={p.email} />
-        <Field label="Telephone" value={p.telephoneMobile} />
-        <Field label="Numero CIN" value={p.numeroCIN} />
-        <Field label="Date de naissance" value={formatDate(p.dateNaissance)} />
-        <Field label="Lieu de naissance" value={p.lieuNaissance} />
-      </CardContent>
-    </Card>
-  );
-}
-
-function MilitaireTab({ p }: { p: { grade: { libelle: string }; unite: { nom: string }; specialite: { libelle: string } | null } }) {
-  return (
-    <Card>
-      <CardHeader><CardTitle className="text-base">Renseignements militaires</CardTitle></CardHeader>
-      <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Field label="Grade" value={p.grade.libelle} />
-        <Field label="Unite" value={p.unite.nom} />
-        <Field label="Specialite" value={p.specialite?.libelle ?? null} />
-      </CardContent>
-    </Card>
-  );
-}
-
-function ConnaissancesTab({ p }: { p: { email: string | null } }) {
-  return (
-    <Card>
-      <CardHeader><CardTitle className="text-base">Connaissances particulieres</CardTitle></CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">Les langues et connaissances informatiques seront affichees ici.</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PlaceholderTab({ label }: { label: string }) {
-  return (
-    <Card>
-      <CardContent className="p-8 text-center text-sm text-muted-foreground">
-        Onglet « {label} » — chargement detaille a venir
-      </CardContent>
-    </Card>
   );
 }

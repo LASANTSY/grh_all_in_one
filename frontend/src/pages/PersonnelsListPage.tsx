@@ -53,7 +53,6 @@ export function PersonnelsListPage() {
           perms.canCreatePersonnel ? (
             <Button asChild>
               <Link to="/personnels/nouveau">
-                <Plus className="mr-2 h-4 w-4" />
                 Nouveau personnel
               </Link>
             </Button>

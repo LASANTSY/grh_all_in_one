@@ -29,7 +29,7 @@ export function ImportsListPage() {
         actions={
           <Button asChild>
             <a href="http://localhost:3000/api/imports/template" target="_blank" rel="noreferrer">
-              <Upload className="mr-2 h-4 w-4" /> Telecharger le modele
+               Telecharger le modele
             </a>
           </Button>
         }
