@@ -54,7 +54,7 @@ export function RepartitionGradeChart() {
                 outerRadius={100}
                 innerRadius={55}
                 paddingAngle={2}
-                label={(entry) => `${entry.libelle} (${entry.total})`}
+                label={false}
                 labelLine={false}
               >
                 {displayData.map((_entry, index) => (
@@ -68,10 +68,13 @@ export function RepartitionGradeChart() {
                   borderRadius: 'var(--radius-md)',
                   fontSize: 12,
                 }}
-                formatter={(value: number, _name, entry) => [
-                  `${value} (${(entry.payload as { pourcentage: number }).pourcentage}%)`,
-                  'Effectif',
-                ]}
+                formatter={(value, _name, entry) => {
+                  const payload = entry?.payload as { pourcentage?: number } | undefined;
+                  return [
+                    `${Number(value)} (${payload?.pourcentage ?? 0}%)`,
+                    'Effectif',
+                  ];
+                }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
             </PieChart>

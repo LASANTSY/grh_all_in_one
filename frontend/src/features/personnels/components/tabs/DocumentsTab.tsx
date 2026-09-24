@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Upload, Download, Trash2, FileText, Loader2 } from 'lucide-react';
+import { Download, Trash2, FileText, Loader2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,7 +70,7 @@ export function DocumentsTab({ personnelId }: { personnelId: string }) {
     const response = await apiClient.get(`/personnels/${personnelId}/documents/${pieceId}/download`, {
       responseType: 'blob',
     });
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', nom);
@@ -95,11 +95,15 @@ export function DocumentsTab({ personnelId }: { personnelId: string }) {
               <Input id="libelle" value={uploadLibelle} onChange={(e) => setUploadLibelle(e.target.value)} placeholder="CV 2024" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="file">Fichier (PDF, JPG, PNG, DOC, DOCX)</Label>
-              <Input id="file" type="file" ref={fileInputRef}
+              <Label htmlFor="file">Fichier</Label>
+              <Input
+                id="file"
+                type="file"
+                ref={fileInputRef}
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadMutation.mutate(f); }}
-                disabled={uploadMutation.isPending} />
+                disabled={uploadMutation.isPending}
+              />
             </div>
           </div>
           {uploadMutation.isPending && (
@@ -108,7 +112,7 @@ export function DocumentsTab({ personnelId }: { personnelId: string }) {
             </p>
           )}
           {uploadMutation.isError && (
-            <p className="mt-3 text-sm text-destructive">Erreur lors du televersement. Verifiez le type et la taille du fichier.</p>
+            <p className="mt-3 text-sm text-destructive">Erreur lors du televersement.</p>
           )}
         </CardContent>
       </Card>
@@ -137,7 +141,7 @@ export function DocumentsTab({ personnelId }: { personnelId: string }) {
                     <TableCell className="font-medium">{p.type}</TableCell>
                     <TableCell className="text-xs">{p.libelle ?? '-'}</TableCell>
                     <TableCell className="text-xs">
-                      {p.versionCourante ? `v${p.versionCourante.numeroVersion} — ${p.versionCourante.nomOriginal}` : '-'}
+                      {p.versionCourante ? `v${p.versionCourante.numeroVersion} - ${p.versionCourante.nomOriginal}` : '-'}
                     </TableCell>
                     <TableCell className="text-xs">{p.versionCourante ? formatFileSize(p.versionCourante.tailleOctets) : '-'}</TableCell>
                     <TableCell className="text-xs">{formatDateTime(p.dateAjout)}</TableCell>

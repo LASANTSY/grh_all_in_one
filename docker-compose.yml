@@ -1,13 +1,108 @@
-import { PageHeader } from '@/components/shared/PageHeader';
-import { Card, CardContent } from '@/components/ui/card';
+# ============================================================
+# GRH EMMN — Orchestration Docker Compose
+# ============================================================
+#
+# Lancement complet : docker compose up -d --build
+# Arret            : docker compose down
+# Reset complet    : docker compose down -v
+#
+# Acces :
+#   - Application : http://localhost:8080
+#   - API directe : http://localhost:3000/api (expose pour debug)
+#   - PostgreSQL  : localhost:5432 (expose pour debug)
+# ============================================================
 
-export function RapportsPage() {
-  return (
-    <div className="space-y-6">
-      <PageHeader title="Rapports" description="Generation de rapports et exports PDF/Excel" />
-      <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">
-        Rapports a implementer dans une version ulterieure.
-      </CardContent></Card>
-    </div>
-  );
-}
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: grh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root1234}
+      POSTGRES_DB: ${DB_DATABASE:-grh_emmn}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT_EXPOSE:-5432}:5432"
+    volumes:
+      - grh_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-grh_emmn}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - grh-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: grh-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      APP_PORT: 3000
+      APP_NAME: GRH-EMMN
+      APP_URL: http://localhost:8080
+      FRONTEND_URL: http://localhost:8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-root1234}
+      DB_DATABASE: ${DB_DATABASE:-grh_emmn}
+      DB_SYNCHRONIZE: "false"
+      DB_LOGGING: "false"
+      DB_SSL: "false"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_minimum_32_chars_long}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change_me_refresh_secret_minimum_32_chars_long}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-12}
+      MAX_LOGIN_ATTEMPTS: ${MAX_LOGIN_ATTEMPTS:-5}
+      LOCKOUT_DURATION_MINUTES: ${LOCKOUT_DURATION_MINUTES:-15}
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_PATH: /app/storage
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-10}
+      ALLOWED_MIME_TYPES: "application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      IMPORT_MAX_ROWS: ${IMPORT_MAX_ROWS:-2000}
+      IMPORT_SYNC_THRESHOLD: ${IMPORT_SYNC_THRESHOLD:-500}
+    ports:
+      - "${BACKEND_PORT_EXPOSE:-3000}:3000"
+    volumes:
+      - grh_backend_storage:/app/storage
+    command: sh -c "node dist/scripts/run-migrations.js && node dist/scripts/run-seeds.js && node dist/main.js"
+    networks:
+      - grh-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_APP_NAME: GRH EMMN
+        VITE_APP_URL: http://localhost:8080
+    container_name: grh-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT_EXPOSE:-8080}:80"
+    networks:
+      - grh-network
+
+volumes:
+  grh_postgres_data:
+    name: grh_postgres_data
+  grh_backend_storage:
+    name: grh_backend_storage
+
+networks:
+  grh-network:
+    name: grh-network
+    driver: bridge

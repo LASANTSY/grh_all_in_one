@@ -41,8 +41,8 @@ export function DepartsRetraiteChart() {
                   borderRadius: 'var(--radius-md)',
                   fontSize: 12,
                 }}
-                formatter={(value: number) => [`${value} depart(s)`, 'Retraites']}
-                labelFormatter={(label) => `Annee ${label}`}
+                formatter={(value) => [`${Number(value)} depart(s)`, 'Retraites']}
+                labelFormatter={(label) => `Annee ${String(label)}`}
               />
               <Bar dataKey="total" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
             </BarChart>

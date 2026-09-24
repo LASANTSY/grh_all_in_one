@@ -107,28 +107,82 @@ export function PersonnelDetailPage() {
             <Field label="Fin de lien" value={p.dateFinDeLien ? formatDate(p.dateFinDeLien) : null} />
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Statut</p>
-              <p><StatusBadge variant={p.actif ? 'success' : 'muted'}>{p.actif ? 'Actif' : 'Inactif'}</StatusBadge></p>
+              <p>
+                <StatusBadge variant={p.actif ? 'success' : 'muted'}>
+                  {p.actif ? 'Actif' : 'Inactif'}
+                </StatusBadge>
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="general">
-        <TabsList className="flex-wrap">
-          <TabsTrigger value="general">Informations generales</TabsTrigger>
-          <TabsTrigger value="enfants">Enfants</TabsTrigger>
-          <TabsTrigger value="militaire">Renseignements militaires</TabsTrigger>
-          <TabsTrigger value="grades">Historique grades</TabsTrigger>
-          <TabsTrigger value="etudes">Etudes et formations</TabsTrigger>
-          <TabsTrigger value="connaissances">Connaissances</TabsTrigger>
-          <TabsTrigger value="affectations">Affectations</TabsTrigger>
-          <TabsTrigger value="decorations">Decorations</TabsTrigger>
-          <TabsTrigger value="documents">Pieces jointes</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="general" className="w-full">
+        {/* Conteneur scrollable pour les onglets : largeur naturelle, pas etires */}
+        <div className="w-full overflow-x-auto border-b border-border">
+          <TabsList className="h-auto w-max min-w-0 justify-start gap-1 rounded-none bg-transparent p-0">
+            <TabsTrigger
+              value="general"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Informations generales
+            </TabsTrigger>
+            <TabsTrigger
+              value="enfants"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Enfants
+            </TabsTrigger>
+            <TabsTrigger
+              value="militaire"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Renseignements militaires
+            </TabsTrigger>
+            <TabsTrigger
+              value="grades"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Historique grades
+            </TabsTrigger>
+            <TabsTrigger
+              value="etudes"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Etudes et formations
+            </TabsTrigger>
+            <TabsTrigger
+              value="connaissances"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Connaissances
+            </TabsTrigger>
+            <TabsTrigger
+              value="affectations"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Affectations
+            </TabsTrigger>
+            <TabsTrigger
+              value="decorations"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Decorations
+            </TabsTrigger>
+            <TabsTrigger
+              value="documents"
+              className="shrink-0 rounded-none border-b-2 border-transparent px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Pieces jointes
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="general" className="mt-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Informations generales</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">Informations generales</CardTitle>
+            </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Field label="Matricule de recrutement" value={p.matriculeRecrutement} />
               <Field label="Matricule financier" value={p.matriculeFinancier} />
@@ -147,7 +201,9 @@ export function PersonnelDetailPage() {
 
         <TabsContent value="militaire" className="mt-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Renseignements militaires</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">Renseignements militaires</CardTitle>
+            </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Field label="Grade" value={p.grade.libelle} />
               <Field label="Unite" value={p.unite.nom} />

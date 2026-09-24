@@ -25,6 +25,10 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
   const specialitesQuery = useSpecialites();
   const unitesQuery = useUnites(filters.baseId || undefined);
 
+  const handleSelectChange = (key: 'baseId' | 'uniteId' | 'gradeId' | 'specialiteId') => (v: string | null) => {
+    setFilter(key, v === ALL_VALUE || v === null ? '' : v);
+  };
+
   return (
     <div className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -50,7 +54,7 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
         <Select
           value={filters.baseId || ALL_VALUE}
           onValueChange={(v) => {
-            setFilter('baseId', v === ALL_VALUE ? '' : v);
+            handleSelectChange('baseId')(v);
             setFilter('uniteId', '');
           }}
         >
@@ -69,7 +73,7 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
 
         <Select
           value={filters.uniteId || ALL_VALUE}
-          onValueChange={(v) => setFilter('uniteId', v === ALL_VALUE ? '' : v)}
+          onValueChange={handleSelectChange('uniteId')}
         >
           <SelectTrigger>
             <SelectValue placeholder="Unite" />
@@ -86,7 +90,7 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
 
         <Select
           value={filters.gradeId || ALL_VALUE}
-          onValueChange={(v) => setFilter('gradeId', v === ALL_VALUE ? '' : v)}
+          onValueChange={handleSelectChange('gradeId')}
         >
           <SelectTrigger>
             <SelectValue placeholder="Grade" />
@@ -103,7 +107,7 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
 
         <Select
           value={filters.specialiteId || ALL_VALUE}
-          onValueChange={(v) => setFilter('specialiteId', v === ALL_VALUE ? '' : v)}
+          onValueChange={handleSelectChange('specialiteId')}
         >
           <SelectTrigger>
             <SelectValue placeholder="Specialite" />
@@ -120,7 +124,7 @@ export function PersonnelFilters({ filterApi }: PersonnelFiltersProps) {
 
         <Select
           value={filters.actif}
-          onValueChange={(v) => setFilter('actif', v as 'all' | 'true' | 'false')}
+          onValueChange={(v) => setFilter('actif', (v as 'all' | 'true' | 'false') ?? 'all')}
         >
           <SelectTrigger>
             <SelectValue placeholder="Statut" />

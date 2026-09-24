@@ -24,10 +24,24 @@ interface Affectation {
   observations: string | null;
 }
 
+interface FormState {
+  uniteId: string;
+  decision: string;
+  dateEffet: string;
+  fonctionEmploi: string;
+  observations: string;
+}
+
 export function AffectationsTab({ personnelId }: { personnelId: string }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ uniteId: '', decision: '', dateEffet: '', fonctionEmploi: '', observations: '' });
+  const [form, setForm] = useState<FormState>({
+    uniteId: '',
+    decision: '',
+    dateEffet: '',
+    fonctionEmploi: '',
+    observations: '',
+  });
 
   const unitesQuery = useUnites();
 
@@ -40,7 +54,7 @@ export function AffectationsTab({ personnelId }: { personnelId: string }) {
   });
 
   const addMutation = useMutation({
-    mutationFn: async (payload: typeof form) => {
+    mutationFn: async (payload: FormState) => {
       await apiClient.post(`/personnels/${personnelId}/affectations`, payload);
     },
     onSuccess: () => {
@@ -54,41 +68,92 @@ export function AffectationsTab({ personnelId }: { personnelId: string }) {
     mutationFn: async (id: string) => {
       await apiClient.delete(`/personnels/${personnelId}/affectations/${id}`);
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['personnels', personnelId, 'affectations'] }),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ['personnels', personnelId, 'affectations'] }),
   });
+
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    addMutation.mutate(form);
+  };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">Affectations successives</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm"><Plus className="mr-1 h-4 w-4" /> Ajouter</Button>
+          <DialogTrigger>
+            <Button size="sm">
+              <Plus className="mr-1 h-4 w-4" /> Ajouter
+            </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Nouvelle affectation</DialogTitle></DialogHeader>
-            <form onSubmit={(e) => { e.preventDefault(); addMutation.mutate(form); }} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>Nouvelle affectation</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>Unite</Label>
-                  <Select value={form.uniteId} onValueChange={(v) => setForm({ ...form, uniteId: v })}>
-                    <SelectTrigger><SelectValue placeholder="Choisir une unite" /></SelectTrigger>
+                  <Select
+                    value={form.uniteId}
+                    onValueChange={(v) => setForm({ ...form, uniteId: v ?? '' })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une unite" />
+                    </SelectTrigger>
                     <SelectContent>
                       {(unitesQuery.data ?? []).map((u) => (
-                        <SelectItem key={u.id} value={u.id}>{u.nom} ({u.code})</SelectItem>
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.nom} ({u.code})
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5"><Label>Decision</Label><Input value={form.decision} onChange={(e) => setForm({ ...form, decision: e.target.value })} /></div>
-                <div className="space-y-1.5"><Label>Date d effet</Label><Input type="date" value={form.dateEffet} onChange={(e) => setForm({ ...form, dateEffet: e.target.value })} required /></div>
-                <div className="space-y-1.5 sm:col-span-2"><Label>Fonction / emploi</Label><Input value={form.fonctionEmploi} onChange={(e) => setForm({ ...form, fonctionEmploi: e.target.value })} /></div>
-                <div className="space-y-1.5 sm:col-span-2"><Label>Observations</Label><Input value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} /></div>
+                <div className="space-y-1.5">
+                  <Label>Decision</Label>
+                  <Input
+                    value={form.decision}
+                    onChange={(e) => setForm({ ...form, decision: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Date d effet</Label>
+                  <Input
+                    type="date"
+                    value={form.dateEffet}
+                    onChange={(e) => setForm({ ...form, dateEffet: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Fonction / emploi</Label>
+                  <Input
+                    value={form.fonctionEmploi}
+                    onChange={(e) => setForm({ ...form, fonctionEmploi: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Observations</Label>
+                  <Input
+                    value={form.observations}
+                    onChange={(e) => setForm({ ...form, observations: e.target.value })}
+                  />
+                </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Annuler
+                </Button>
                 <Button type="submit" disabled={addMutation.isPending || !form.uniteId}>
-                  {addMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enregistrement...</> : 'Ajouter'}
+                  {addMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enregistrement...
+                    </>
+                  ) : (
+                    'Ajouter'
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -97,9 +162,13 @@ export function AffectationsTab({ personnelId }: { personnelId: string }) {
       </CardHeader>
       <CardContent className="p-0">
         {query.isLoading ? (
-          <div className="p-4"><Skeleton className="h-32 w-full" /></div>
+          <div className="p-4">
+            <Skeleton className="h-32 w-full" />
+          </div>
         ) : !query.data || query.data.length === 0 ? (
-          <div className="p-4"><EmptyState title="Aucune affectation" description="Aucune affectation enregistree." /></div>
+          <div className="p-4">
+            <EmptyState title="Aucune affectation" description="Aucune affectation enregistree." />
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -119,7 +188,11 @@ export function AffectationsTab({ personnelId }: { personnelId: string }) {
                   <TableCell>{a.fonctionEmploi ?? '-'}</TableCell>
                   <TableCell className="text-xs">{a.decision ?? '-'}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => removeMutation.mutate(a.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeMutation.mutate(a.id)}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>

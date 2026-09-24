@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Upload } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -9,8 +10,12 @@ import { apiClient } from '@/lib/axios';
 import { formatDateTime } from '@/lib/formatters';
 
 interface ImportItem {
-  id: string; dateImport: string; nomFichierSource: string;
-  nombreLignes: number; lignesCreees: number; lignesErreurs?: number;
+  id: string;
+  dateImport: string;
+  nomFichierSource: string;
+  nombreLignes: number;
+  lignesCreees: number;
+  lignesErreurs?: number;
   statut: string;
 }
 
@@ -25,13 +30,20 @@ export function ImportsListPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Imports Excel" description="Historique des imports de personnel"
+      <PageHeader
+        title="Imports Excel"
+        description="Historique des imports de personnel"
         actions={
-          <Button asChild>
+          <div className="flex gap-2">
             <a href="http://localhost:3000/api/imports/template" target="_blank" rel="noreferrer">
-               Telecharger le modele
+              <Button variant="outline">Telecharger le modele</Button>
             </a>
-          </Button>
+            <Button asChild>
+              <Link to="/imports/nouveau">
+                <Upload className="mr-2 h-4 w-4" /> Nouvel import
+              </Link>
+            </Button>
+          </div>
         }
       />
       {query.data?.length === 0 && (

@@ -1,11 +1,7 @@
 import { z } from 'zod';
 
-const optionalString = (max: number) =>
-  z
-    .string()
-    .max(max, `Maximum ${max} caracteres.`)
-    .optional()
-    .or(z.literal(''));
+const optionalString = (max: number): z.ZodOptional<z.ZodString> =>
+  z.string().max(max, `Maximum ${max} caracteres.`).optional();
 
 const optionalDate = z
   .string()
@@ -14,21 +10,14 @@ const optionalDate = z
   .or(z.literal(''));
 
 export const personnelSchema = z.object({
-  // Obligatoires
-  matriculeRecrutement: z
-    .string()
-    .min(1, 'Le matricule de recrutement est obligatoire.')
-    .max(50),
+  matriculeRecrutement: z.string().min(1, 'Le matricule de recrutement est obligatoire.').max(50),
   nom: z.string().min(2, 'Le nom est obligatoire.').max(100),
   prenoms: z.string().min(2, 'Les prenoms sont obligatoires.').max(150),
-  dateNaissance: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format attendu : AAAA-MM-JJ.'),
+  dateNaissance: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format attendu : AAAA-MM-JJ.'),
   lieuNaissance: z.string().min(1, 'Le lieu de naissance est obligatoire.').max(150),
-  gradeId: z.string().uuid('Le grade est obligatoire.'),
-  uniteId: z.string().uuid("L'unite est obligatoire."),
+  gradeId: z.string().min(1, 'Le grade est obligatoire.'),
+  uniteId: z.string().min(1, "L'unite est obligatoire."),
 
-  // Optionnels
   matriculeFinancier: optionalString(50),
   photoUrl: optionalString(500),
   prefecture: optionalString(150),
@@ -47,7 +36,7 @@ export const personnelSchema = z.object({
   dateDelivrancePasseport: optionalDate,
   religion: optionalString(50),
   groupeSanguin: optionalString(10),
-  taille: z.coerce.number().int().min(100).max(250).optional().or(z.literal('')),
+  taille: z.string().optional().or(z.literal('')),
   statutFamilial: optionalString(50),
   numeroAutorisationMariage: optionalString(50),
   dateAutorisationMariage: optionalDate,
@@ -68,7 +57,7 @@ export const personnelSchema = z.object({
   dateEntreeService: optionalDate,
   niveauInstruction: optionalString(150),
   connaissancesInformatiques: optionalString(2000),
-  specialiteId: z.string().uuid().optional().or(z.literal('')),
+  specialiteId: z.string().optional().or(z.literal('')),
 });
 
 export type PersonnelFormData = z.infer<typeof personnelSchema>;

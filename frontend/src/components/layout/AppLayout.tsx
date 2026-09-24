@@ -8,6 +8,7 @@ import { Breadcrumbs } from './Breadcrumbs';
 type Theme = 'light' | 'dark';
 
 const THEME_KEY = 'grh-emmn-theme';
+const SIDEBAR_WIDTH = 256; // px = w-64
 
 function loadTheme(): Theme {
   const stored = localStorage.getItem(THEME_KEY);
@@ -24,30 +25,48 @@ export function AppLayout() {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  const toggleTheme = (): void => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <div className="hidden w-64 shrink-0 lg:block">
-        <div className="fixed inset-y-0 left-0 w-64">
-          <Sidebar />
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* ============================================================
+          Sidebar DESKTOP : position fixe, largeur fixe, hors du flux
+          ============================================================ */}
+      <aside
+        className="fixed inset-y-0 left-0 z-40 hidden border-r border-sidebar-border bg-sidebar lg:block"
+        style={{ width: `${SIDEBAR_WIDTH}px` }}
+      >
+        <Sidebar />
+      </aside>
 
+      {/* ============================================================
+          Sidebar MOBILE : drawer
+          ============================================================ */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 p-0">
-          <Sidebar onClose={() => setMobileOpen(false)} onNavigate={() => setMobileOpen(false)} showClose />
+          <Sidebar
+            onClose={() => setMobileOpen(false)}
+            onNavigate={() => setMobileOpen(false)}
+            showClose
+          />
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 flex-col">
+      {/* ============================================================
+          Zone de contenu : decalee par un margin-left sur desktop
+          ============================================================ */}
+      <div
+        className="flex min-h-screen flex-col lg:pl-64"
+        style={{ minWidth: 0 }}
+      >
         <Header
           onOpenSidebar={() => setMobileOpen(true)}
           onToggleTheme={toggleTheme}
           theme={theme}
         />
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto max-w-7xl px-4 py-6 lg:px-8">
+
+        <main className="flex-1 overflow-x-hidden">
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">
             <Breadcrumbs />
             <div className="mt-4">
               <Outlet />

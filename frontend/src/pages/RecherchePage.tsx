@@ -1,5 +1,5 @@
 import { PageHeader } from '@/components/shared/PageHeader';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { PersonnelFilters } from '@/features/personnels/components/PersonnelFilters';
 import { PersonnelTable } from '@/features/personnels/components/PersonnelTable';
 import { Pagination } from '@/components/shared/Pagination';

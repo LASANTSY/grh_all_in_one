@@ -22,9 +22,18 @@ interface Enfant {
   lienParente: string;
 }
 
+interface FormState {
+  rang: string;
+  nom: string;
+  prenoms: string;
+  dateNaissance: string;
+  sexe: string;
+  lienParente: string;
+}
+
 export function EnfantsTab({ personnelId }: { personnelId: string }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     rang: '1',
     nom: '',
     prenoms: '',
@@ -37,7 +46,7 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
   const addMutation = useAddEnfant(personnelId);
   const removeMutation = useRemoveEnfant(personnelId);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     addMutation.mutate(
       {
@@ -62,7 +71,7 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">Enfants a charge</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button size="sm">
               <Plus className="mr-1 h-4 w-4" /> Ajouter
             </Button>
@@ -75,12 +84,21 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="rang">Rang</Label>
-                  <Input id="rang" type="number" min="1" value={form.rang} onChange={(e) => setForm({ ...form, rang: e.target.value })} required />
+                  <Input
+                    id="rang"
+                    type="number"
+                    min="1"
+                    value={form.rang}
+                    onChange={(e) => setForm({ ...form, rang: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="sexe">Sexe</Label>
-                  <Select value={form.sexe} onValueChange={(v) => setForm({ ...form, sexe: v })}>
-                    <SelectTrigger id="sexe"><SelectValue /></SelectTrigger>
+                  <Select value={form.sexe} onValueChange={(v) => setForm({ ...form, sexe: v ?? 'M' })}>
+                    <SelectTrigger id="sexe">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="M">Masculin</SelectItem>
                       <SelectItem value="F">Feminin</SelectItem>
@@ -89,20 +107,41 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="nom">Nom</Label>
-                  <Input id="nom" value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} required />
+                  <Input
+                    id="nom"
+                    value={form.nom}
+                    onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="prenoms">Prenoms</Label>
-                  <Input id="prenoms" value={form.prenoms} onChange={(e) => setForm({ ...form, prenoms: e.target.value })} required />
+                  <Input
+                    id="prenoms"
+                    value={form.prenoms}
+                    onChange={(e) => setForm({ ...form, prenoms: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="dateNaissance">Date de naissance</Label>
-                  <Input id="dateNaissance" type="date" value={form.dateNaissance} onChange={(e) => setForm({ ...form, dateNaissance: e.target.value })} required />
+                  <Input
+                    id="dateNaissance"
+                    type="date"
+                    value={form.dateNaissance}
+                    onChange={(e) => setForm({ ...form, dateNaissance: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="lienParente">Lien de parente</Label>
-                  <Select value={form.lienParente} onValueChange={(v) => setForm({ ...form, lienParente: v })}>
-                    <SelectTrigger id="lienParente"><SelectValue /></SelectTrigger>
+                  <Select
+                    value={form.lienParente}
+                    onValueChange={(v) => setForm({ ...form, lienParente: v ?? 'Fils' })}
+                  >
+                    <SelectTrigger id="lienParente">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Fils">Fils</SelectItem>
                       <SelectItem value="Fille">Fille</SelectItem>
@@ -113,9 +152,17 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Annuler
+                </Button>
                 <Button type="submit" disabled={addMutation.isPending}>
-                  {addMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enregistrement...</> : 'Ajouter'}
+                  {addMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enregistrement...
+                    </>
+                  ) : (
+                    'Ajouter'
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -124,10 +171,15 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
       </CardHeader>
       <CardContent className="p-0">
         {query.isLoading ? (
-          <div className="p-4"><Skeleton className="h-32 w-full" /></div>
+          <div className="p-4">
+            <Skeleton className="h-32 w-full" />
+          </div>
         ) : !query.data || query.data.length === 0 ? (
           <div className="p-4">
-            <EmptyState title="Aucun enfant" description="Aucun enfant a charge enregistre pour ce personnel." />
+            <EmptyState
+              title="Aucun enfant"
+              description="Aucun enfant a charge enregistre pour ce personnel."
+            />
           </div>
         ) : (
           <Table>
@@ -145,12 +197,18 @@ export function EnfantsTab({ personnelId }: { personnelId: string }) {
               {(query.data as Enfant[]).map((e) => (
                 <TableRow key={e.id}>
                   <TableCell>{e.rang}</TableCell>
-                  <TableCell className="font-medium">{e.nom.toUpperCase()} {e.prenoms}</TableCell>
+                  <TableCell className="font-medium">
+                    {e.nom.toUpperCase()} {e.prenoms}
+                  </TableCell>
                   <TableCell className="text-xs">{formatDate(e.dateNaissance)}</TableCell>
                   <TableCell>{e.sexe}</TableCell>
                   <TableCell>{e.lienParente}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => removeMutation.mutate(e.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeMutation.mutate(e.id)}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>

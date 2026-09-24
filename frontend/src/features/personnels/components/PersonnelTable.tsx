@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatDate, formatInitiales } from '@/lib/formatters';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { PersonnelListItem } from '@/types/personnel';

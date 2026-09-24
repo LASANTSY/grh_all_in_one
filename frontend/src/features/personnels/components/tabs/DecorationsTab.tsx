@@ -20,10 +20,17 @@ interface Decoration {
   observations: string | null;
 }
 
+interface FormState {
+  libelle: string;
+  reference: string;
+  dateEffet: string;
+  observations: string;
+}
+
 export function DecorationsTab({ personnelId }: { personnelId: string }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ libelle: '', reference: '', dateEffet: '', observations: '' });
+  const [form, setForm] = useState<FormState>({ libelle: '', reference: '', dateEffet: '', observations: '' });
 
   const query = useQuery({
     queryKey: ['personnels', personnelId, 'decorations'],
@@ -34,7 +41,7 @@ export function DecorationsTab({ personnelId }: { personnelId: string }) {
   });
 
   const addMutation = useMutation({
-    mutationFn: async (payload: typeof form) => {
+    mutationFn: async (payload: FormState) => {
       await apiClient.post(`/personnels/${personnelId}/decorations`, payload);
     },
     onSuccess: () => {
@@ -54,7 +61,7 @@ export function DecorationsTab({ personnelId }: { personnelId: string }) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">Decorations successives</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button size="sm"><Plus className="mr-1 h-4 w-4" /> Ajouter</Button>
           </DialogTrigger>
           <DialogContent>
